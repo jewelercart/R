@@ -1,0 +1,120 @@
+---
+title: "R Bridge course work week 2"
+author: "Frederick Jones"
+date: "2023-07-22"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The data wage2 was obtained from the website http://vincentarelbundock.github.io/Rdatasets/. The data is about wages of  employees and their education, experience, age etc. 
+### The summary of the data:
+
+```{r}
+dataset = read.csv('wage2.csv')
+summary(dataset)
+
+```
+
+## Question 1
+## Mean and median of two attributes of data. 
+
+### Mean and median of wages
+
+```{r}
+mean_wage <- mean(dataset$wage)
+sprintf("The mean wage is %.2f", mean_wage)
+median_wage <- median(dataset$wage)
+sprintf("The median wage is %.2f", median_wage)
+
+```
+### Mean and median of ages
+
+```{r}
+mean_age <- mean(dataset$age)
+sprintf("The mean age is %.2f", mean_age)
+median_age <- median(dataset$age)
+sprintf("The median age is %.2f", median_age)
+```
+## Question 2
+## Subset of data
+### Here rows from 1 to 100 and columns from 1 to 10 are taken in the subset dataframe df
+
+```{r}
+df <- dataset[1:100, 1:10]
+head(df)
+```
+```{r}
+library(tidyverse)
+df2 <- select(dataset, 
+              wage, hours, educ, exper, tenure, age, married)
+head(df2)
+```
+## The subset of data containing all the married employees whos age is greater than 30 years. 
+
+```{r}
+df3 <- filter(df2,
+              married ==1, age >30)
+head(df3)
+
+```
+## Question 3
+## The dataframe df3 will be used for further working with this assignement. df and df2 were just the experiemental subsets on how to take subset from given dataframe. 
+### Renaming columns
+
+
+```{r}
+df3 <- rename(df3,  Salary = wage, Hours = hours,  Education = educ, Experience =exper, Tenure =tenure, Age = age, Married = married)
+head(df3)
+```
+Question 4
+## Summary of the newly created dataframe df3
+```{r}
+summary(df3)
+```
+
+### Mean and median of wage and age are changed becuase df3 contains the data only for married employees whose age is greater than 30 years old. 
+```{r}
+mean_wage <- mean(df3$Wage)
+sprintf("The mean wage is %.2f", mean_wage)
+median_wage <- median(df3$Wage)
+sprintf("The median wage is %.2f", median_wage)
+
+mean_age <- mean(df3$Age)
+sprintf("The mean age is %.2f", mean_age)
+median_age <- median(df3$Age)
+sprintf("The median age is %.2f", median_age)
+
+
+```
+
+## The mean and meadian of wage and age has been changed because df3 contains the data only for employees who are married and older than 30 years. So, df3 contains less number of rows as compared to original dataset. Hence, mean and median changed. 
+
+### Question 5
+## I can replace in the column urban with the value 1  'Urban' and 0 with 'not-Urban' in a new dataset df4 which will be a copy of the original dataset. 
+
+```{r}
+df4 <- dataset
+df4$urban[df4$urban== 1] <-'Urban'
+df4$urban[df4$urban== 0] <-'not-Urban'
+df4$married[df4$married==1] <-'Married'
+df4$married[df4$married==0] <-'UnMarried'
+head(df4, 10)
+```
+##Question 6
+all outputs contain more then 5 rows.
+
+##Question 7 Bonus Question
+```{r}
+library(readr)
+##dfremote <- read_csv("https://github.com/jewelercart/R/blob/main/wage2.csv")
+##head(dfremote)
+```
+
+
+## 
