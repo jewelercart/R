@@ -1,14 +1,18 @@
 ---
 title: "R Bridge Assignment"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 date: "2023-07-25"
+Author: Frederick Jones
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction
+## Introduction By Frederick Jones
 This analysis tries to find whether the male or female report their height accurately. This analysis use the data named as 'davis' which is available freely at the link http://vincentarelbundock.github.io/Rdatasets/davis. This data contains six columns one X which is just an index, 'weight' and 'height' are the measured weights and heights of participants. 'repwt' and 'repht' are reported weights and reported heights of participants.
 ## Problem Statement
 ### Who is more accurate about reporting weight and height, an adult male or an adult female?
@@ -23,13 +27,13 @@ head(dataset)
 ## Qyestion 1
 ### Data Exploration
 
-Before calculating anything, we must check if there is any missing values in dataset. The function anyNA do this job efficeintly. 
+Before calculating anything, we must check if there is any missing values in dataset. The function anyNA do this job efficiently. 
 
 ```{r}
 print(sapply(dataset, anyNA))
 ```
-It can be seen that the columns 'repwt' and 'repht' have missing values. We can replace the missing values by average of the rest of the values in the column or we can just remove the rows containg the missing values. 
-I think for this dataset which consist of reported weigth and reported height, it will be good if the missing values are replaced by average of the other values in column. 
+It can be seen that the columns 'repwt' and 'repht' have missing values. We can replace the missing values by average of the rest of the values in the column or we can just remove the rows containing the missing values. 
+I think for this dataset which consist of reported weight and reported height, it will be good if the missing values are replaced by average of the other values in column. 
 
 ## Handling missing data 
 
@@ -91,7 +95,7 @@ df<- dataset[, 2:6]
 df_male = filter(df, sex=='M')  #df_male contains data only for males 
 df_female = filter(df, sex=='F')
 ```
-Now we can have summary for males and females separetely
+Now we can have summary for males and females separately
 
 ```{r}
 summary(df_male)
@@ -158,9 +162,9 @@ It does not appear that either male or female are more accurate in reporting the
 ## Question 5. Bonus 
 Reading data from github 
 ```{r}
-#library(readr)
-#df2 <- read_csv("link")
-#summary(df2)
+library(readr)
+df2 <- read_csv("https://raw.githubusercontent.com/jewelercart/R/main/Davis.csv")
+summary(df2)
 
 ```
 
