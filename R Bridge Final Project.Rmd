@@ -1,0 +1,166 @@
+---
+title: "R Bridge Assignment"
+output: pdf_document
+date: "2023-07-25"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+This analysis tries to find whether the male or female report their height accurately. This analysis use the data named as 'davis' which is available freely at the link http://vincentarelbundock.github.io/Rdatasets/davis. This data contains six columns one X which is just an index, 'weight' and 'height' are the measured weights and heights of participants. 'repwt' and 'repht' are reported weights and reported heights of participants.
+## Problem Statement
+### Who is more accurate about reporting weight and height, an adult male or an adult female?
+This analysis will answer this question based on data collected. 
+## Import data 
+
+```{r Data_exploration}
+dataset <- read.csv('davis.csv')
+head(dataset)
+
+```
+## Qyestion 1
+### Data Exploration
+
+Before calculating anything, we must check if there is any missing values in dataset. The function anyNA do this job efficeintly. 
+
+```{r}
+print(sapply(dataset, anyNA))
+```
+It can be seen that the columns 'repwt' and 'repht' have missing values. We can replace the missing values by average of the rest of the values in the column or we can just remove the rows containg the missing values. 
+I think for this dataset which consist of reported weigth and reported height, it will be good if the missing values are replaced by average of the other values in column. 
+
+## Handling missing data 
+
+```{r Data_Exploration}
+
+dataset$repwt <- ifelse(is.na(dataset$repwt),
+                        ave(dataset$repwt, FUN= function(x) mean(x, na.rm = TRUE)),
+                        dataset$repwt)
+dataset$repht <- ifelse(is.na(dataset$repht),
+                        ave(dataset$repht, FUN= function(x) mean(x, na.rm = TRUE)),
+                        dataset$repht)
+```
+
+Let us check if there is any missing value in our dataset
+```{r}
+print(sapply(dataset, anyNA))
+
+```
+It can be seen no missing values in the modified dataset.Now as the next step, it will be necessary to check if there is any outlier in the data. The easiest method is by creating a scatter-plot or box-plot and check if there is any outlier in the data. Let's create a scatter-plot. 
+```{r}
+library(ggplot2)
+ggplot(data = dataset)+
+  geom_point( mapping=aes (x=X, y=weight, color=sex))
+```
+
+The scatter plot shows that ther is an outlier in the data related to female. The outlier containing weight more than 160 is an outlier in this data. So, we have to remove it from the data.
+Let's remove this extreme entry, it might be typing error. 
+```{r}
+dataset<- subset(dataset, dataset$weight<160)
+head(dataset)
+```
+In the next step, the mean of measured as well as reported weight and height of male and female can be found as follows:
+
+```{r}
+aggregate(dataset[,3:6], list(dataset$sex), FUN = mean)
+```
+It can be seen that the mean of measured weight and measured height of 199 females differ by small value from mean of reported weight and reported height.For example mean measured weight of females is 56.892 while mean reported weight is 57.629. Similarly mean measured height of females is 164.703 cm and mean of reported heights is 162.82 cm.  
+On the contrary, mean measured height of males is 178.01 cm while mean of reported heights is 175.73 which is less than the measured height. Mean measured weight of surveyed males is 75.898 and mean reported weight of male is 75.815. 
+
+Median of data based on gender
+```{r}
+print(aggregate(dataset[,3:6], list(dataset$sex), FUN = median))
+```
+Minimum values in the data
+```{r}
+aggregate(dataset[,3:6], list(dataset$sex), FUN = min)
+```
+Maximum values in the data
+```{r}
+aggregate(dataset[,3:6], list(dataset$sex), FUN = max)
+```
+
+## Question 2. Data wrangling. 
+The data contains X which is just an index number and we don't need it. So, we can take subset of data as follows.
+
+```{r}
+library(tidyverse)
+df<- dataset[, 2:6]
+df_male = filter(df, sex=='M')  #df_male contains data only for males 
+df_female = filter(df, sex=='F')
+```
+Now we can have summary for males and females separetely
+
+```{r}
+summary(df_male)
+```
+```{r}
+summary(df_female)
+
+```
+```{r}
+df_male<- rename(df_male, Weight=weight, Height = height, Reported_Wt = repwt, Reported_Ht= repht)
+df_female<- rename(df_female, Weight=weight, Height = height, Reported_Wt = repwt, Reported_Ht=repht)
+head(df_female)
+```
+
+
+Now two additional columns will be added to dataset one is |repwt-weight| and other is |repht=height|
+```{r}
+df_male$Abs_diff_Wt = abs(df_male$Reported_Wt-df_male$Weight)
+df_female$Abs_diff_Ht = abs(df_female$Reported_Ht-df_female$Height)
+df_male$Abs_diff_Ht = abs(df_male$Reported_Ht-df_male$Height)
+df_female$Abs_diff_Wt = abs(df_female$Reported_Wt-df_female$Weight)
+mean_abs_error_wt_male = mean(df_male$Abs_diff_Wt)
+sprintf("Mean absolute error in Weight of male is %.2f", mean_abs_error_wt_male)
+mean_abs_error_wt_female = mean(df_female$Abs_diff_Wt)
+sprintf("Mean absulte error in Weight of female is %.2f", mean_abs_error_wt_female)
+mean_abs_error_ht_male = mean(df_male$Abs_diff_Ht)
+sprintf("Mean absolute error in height of male is %.2f", mean_abs_error_ht_male)
+mean_abs_error_ht_female = mean(df_female$Abs_diff_Ht)
+sprintf("Mean absulte error in height of female is %.2f", mean_abs_error_ht_female)
+```
+
+
+
+## Question 3. Graphics or Visualization 
+
+```{r}
+library(ggplot2)
+ggplot(data = dataset)+
+  geom_point( mapping=aes (x=X, y=weight, color=sex))
+```
+It shows an outlier in the df_female which must be addressed. The outlier might be due to typing error. So, on close observation the data, it was found that the in 4th row, there is an outlier. 
+So, 4th row from the female data can be removed. 
+
+
+```{r}
+ggplot(data = dataset)+
+  geom_point ( mapping=aes (x= X, y=height, color=sex))
+```
+```{r}
+ggplot(data = dataset)+
+  geom_boxplot (mapping = aes (x=X, y= weight, color = sex))
+  
+```
+
+```{r}
+ggplot(data = dataset)+
+  geom_histogram (mapping = aes (x= weight, color = sex))
+
+```
+## Question 4.
+## Conclusion:
+It does not appear that either male or female are more accurate in reporting their weight and height. The mean difference of absolute errors in reporting for both males and females are almost the same. Their is not much difference between error values. 
+
+## Question 5. Bonus 
+Reading data from github 
+```{r}
+#library(readr)
+#df2 <- read_csv("link")
+#summary(df2)
+
+```
+
