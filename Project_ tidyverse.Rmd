@@ -1,0 +1,155 @@
+---
+title: "Tidyverse Create"
+author: "Frederick Jones"
+date: "2023-11-13"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+This project is all about divorce rate in variaous socio-economic section in the US. The source for all data is Decennial Census (years 1960 to 2000) and American Community Survey (years 2001-2012), via IPUMS USA. 
+The summary of variable names is as follows: 
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+<table>
+  <tr>
+    <th>Header</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>all</td>
+    <td>Total (or all men/women in sex-specific files)</td>
+  </tr>
+  <tr>
+    <td>HS</td>
+    <td>High school graduate or less (EDUCD &lt; 65)</td>
+  </tr>
+  <tr>
+    <td>SC</td>
+    <td>Some college (EDUCD &gt;= 65 &amp; &lt;= 100)</td>
+  </tr>
+  <tr>
+    <td>BAp</td>
+    <td>Bachelor's degree or more (EDUCD &gt; 100)</td>
+  </tr>
+  <tr>
+    <td>BAo</td>
+    <td>Bachelor's degree, no graduate degree (EDUCD &gt; 100 &amp; &lt;= 113)</td>
+  </tr>
+  <tr>
+    <td>GD</td>
+    <td>Graduate degree (EDUCD &gt; 113)</td>
+  </tr>
+  <tr>
+    <td>White</td>
+    <td>Non-Hispanic white</td>
+  </tr>
+  <tr>
+    <td>Black</td>
+    <td>Black or African-American</td>
+  </tr>
+  <tr>
+    <td>Hisp</td>
+    <td>Hispanic of any race</td>
+  </tr>
+  <tr>
+    <td>NE</td>
+    <td>New England (REGION == 11)</td>
+  </tr>
+  <tr>
+    <td>MA</td>
+    <td>Mid-Atlantic (REGION == 12)</td>
+  </tr>
+  <tr>
+    <td>Midwest</td>
+    <td>Midwest (REGION == 21-23)</td>
+  </tr>
+  <tr>
+    <td>South</td>
+    <td>South (REGION == 31-34)</td>
+  </tr>
+  <tr>
+    <td>Mountain</td>
+    <td>Mountain West (REGION == 41)</td>
+  </tr>
+  <tr>
+    <td>Pacific</td>
+    <td>Pacific (REGION == 42)</td>
+  </tr>
+  <tr>
+    <td>poor</td>
+    <td>Family income in lowest 25%</td>
+  </tr>
+  <tr>
+    <td>mid</td>
+    <td>Family income in middle 50%</td>
+  </tr>
+  <tr>
+    <td>rich</td>
+    <td>Family income in top 25%</td>
+  </tr>
+  <tr>
+    <td>work</td>
+    <td>Employed 50+ weeks prior year</td>
+  </tr>
+  <tr>
+    <td>nowork</td>
+    <td>Not employed at least 50 weeks prior year</td>
+  </tr>
+  <tr>
+    <td>nokids_all</td>
+    <td>No own children living at home</td>
+  </tr>
+  <tr>
+    <td>kids_all</td>
+    <td>At least one own child living at home</td>
+  </tr>
+</table>
+
+
+```{r}
+df <- read.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/marriage/divorce.csv')
+head(df)
+```
+## Use of filter to filter to get the data for the variable 'all_3544'>0.1
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+df<-df|> filter(
+  all_3544>=0.1
+)
+df
+```
+## Use of mutate() to create a variable ratio = rich_4554/poor_4554
+
+```{r}
+df<- df|> mutate(
+  ratio = rich_4554/poor_4554
+)
+df
+```
+
+
+
