@@ -1,0 +1,319 @@
+---
+title: "Historical Analysis of Airline Safety Dataset"
+author: "Frederick Jones"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+### Data Preparation
+
+```{r setup, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+library(tidyverse)
+
+
+```
+
+
+### Motivation
+
+1. Motivation:
+The motivation behind this analysis goes beyond simple counts of accidents and incidents. We aim to delve into the rates of accidents, such as accidents per 100,000 flight miles. This metric allows us to account for changes in flight activity over time. For instance, if the number of miles flown doubles, but the accident count only increases by 20%, it could indicate an improvement in flight safety.
+
+
+This approach aligns with industry best practices and allows for a more nuanced evaluation of safety measures, providing valuable insights for both the aviation industry and the broader public. Our goal is not only to identify patterns but also to contribute to the ongoing efforts to enhance aviation safety and inform decision-making in the industry.
+
+### Cases 
+
+That that dataset has 11521 cases,each providing detailed information about the trafficking of enslaved.
+
+Within this dataset, there are 126 variables, offering a comprehensive scope for analysis.
+
+
+### Data collection 
+
+The dataset is hosted on kaggle so we are using from kaggle
+
+
+
+### Type of study 
+
+Additionally, we will explore various metrics beyond accident counts, including rates of fatalities and potentially other criteria. By examining these multiple dimensions, we can gain a more holistic understanding of airline safety and identify trends that might be obscured by raw counts alone.
+
+
+### Data Source 
+
+The data set has been made available by kaggle at the following [link](https://www.kaggle.com/datasets/fivethirtyeight/fivethirtyeight-airline-safety-dataset)
+
+### Dataset Descriptions
+airline ----------------->	Airline (asterisk indicates that regional subsidiaries are included)
+avail_seat_km_per_week ---->	Available seat kilometers flown every week
+incidents_85_99	----------->Total number of incidents, 1985–1999
+fatal_accidents_85_99------>	Total number of fatal accidents, 1985–1999
+fatalities_85_99	-------->Total number of fatalities, 1985–1999
+incidents_00_14 ---------->	Total number of incidents, 2000–2014
+fatal_accidents_00_14----->	Total number of fatal accidents, 2000–2014
+fatalities_00_14--------->	Total number of fatalities, 2000–2014
+
+
+
+
+### Relevant summary statistics 
+
+#### Import Dataset
+```{r}
+# Load necessary libraries
+library(readr)
+
+# Load the dataset
+dataset  <- read_csv("airline-safety_csv.csv")
+head(dataset)
+
+```
+
+
+```{r}
+# Summary statistics
+summary(dataset)
+```
+```{r}
+
+# Checking missing values
+sapply(dataset, function(x) sum(is.na(x)))
+
+# Visualizing missing values
+
+library(naniar)
+gg_miss_var(dataset)
+
+```
+
+
+
+
+```{r}
+# Assuming your dataset is stored in the 'dataset' variable
+
+# Check for missing values
+missing_values <- sapply(dataset, function(x) sum(is.na(x)))
+
+# Identify columns with missing values
+columns_with_missing <- names(which(missing_values > 0))
+
+# Impute missing values using mean for numeric columns
+for (col in columns_with_missing) {
+  if (is.numeric(dataset[[col]])) {
+    mean_value <- mean(dataset[[col]], na.rm = TRUE)
+    dataset[[col]][is.na(dataset[[col]])] <- mean_value
+  } else {
+    # If it's a non-numeric column, you might use another strategy like imputing with the most frequent value
+    most_frequent_value <- names(sort(table(dataset[[col]], decreasing = TRUE)))[1]
+    dataset[[col]][is.na(dataset[[col]])] <- most_frequent_value
+  }
+}
+
+# Verify that missing values are filled
+sapply(dataset, function(x) sum(is.na(x)))
+
+
+```
+
+
+
+```{r}
+head(dataset)
+```
+
+
+
+
+
+
+```{r}
+# Calculate accidents per 100,000 flight miles
+dataset$accidents_per_100k_miles <- 
+  (dataset$fatal_accidents_85_99 + dataset$fatal_accidents_00_14) / 
+  (dataset$avail_seat_km_per_week / 100000)
+
+# Visualize accidents per 100,000 flight miles
+hist(dataset$accidents_per_100k_miles, 
+     main = "Accidents per 100,000 Flight Miles",
+     xlab = "Accidents per 100,000 Miles")
+
+
+```
+
+```{r}
+# Calculate a new metric, e.g., fatalities per incident
+dataset$fatalities_per_incident <- 
+  (dataset$fatalities_85_99 + dataset$fatalities_00_14) / 
+  (dataset$incidents_85_99 + dataset$incidents_00_14)
+
+```
+
+```{r}
+# Perform statistical analysis on the new metric
+t_test_result <- t.test(dataset$fatalities_per_incident)
+print(t_test_result)
+
+```
+
+
+
+
+| Code | Local                        |
+|--------|------------------------------|
+| 21302  | Charleston                   |
+| 37020  | St. Thomas                   |
+| 37010  | St. Croix                    |
+| 36499  | Saint-Domingue, port unspecified |
+| 32240  | Suriname                     |
+| 50299  | Bahia, port unspecified      |
+| 39001  | Caribbean (colony unspecified)|
+
+
+```{r}
+# Create a scatter plot of accidents over time
+plot(dataset$incidents_85_99 + dataset$incidents_00_14, 
+     dataset$avail_seat_km_per_week, 
+     main = "Accidents Over Time",
+     xlab = "Accidents",
+     ylab = "Available Seat Kilometers (in 100 million)")
+
+```
+
+| Code   | Local                         |
+|--------|-----------------------------|
+| 31312  | Havana                      |
+| 32150  | St. Eustatius               |
+| 41203  | Veracruz                    |
+| 21102  | Hampton                     |
+| 41207  | Cartagena                   |
+| 32110  | Curaçao                      |
+| 33899  | Dominica, port unspecified  |
+| 31201  | San Juan                     |
+| 31323  | Santiago de Cuba             |
+
+```{r}
+# Boxplot for selected columns
+boxplot(dataset[, c("avail_seat_km_per_week", "incidents_85_99", "fatal_accidents_85_99", "fatalities_85_99")])
+
+# Identify outliers using z-scores
+outliers <- as.data.frame(boxplot.stats(dataset$avail_seat_km_per_week)$out)
+outliers
+```
+```{r}
+# Assuming your dataset is stored in the 'dataset' variable
+
+# Define lower and upper percentiles
+lower_percentile <- 0.05
+upper_percentile <- 0.95
+
+# Identify numeric columns for outlier removal
+numeric_columns <- sapply(dataset, is.numeric)
+
+# Loop through numeric columns and remove outliers
+for (col in names(numeric_columns)[numeric_columns]) {
+  lower_limit <- quantile(dataset[[col]], lower_percentile, na.rm = TRUE)
+  upper_limit <- quantile(dataset[[col]], upper_percentile, na.rm = TRUE)
+  
+  # Remove outliers
+  dataset[[col]] <- ifelse(dataset[[col]] < lower_limit, NA,
+                           ifelse(dataset[[col]] > upper_limit, NA, dataset[[col]]))
+}
+
+# Verify that outliers are removed
+summary(dataset)
+
+```
+
+
+
+```{r}
+
+# Assuming you want to impute missing values with the mean for numeric columns
+library(dplyr)
+
+dataset <- dataset %>%
+  mutate(across(where(is.numeric), ~ifelse(is.na(.), mean(., na.rm = TRUE), .)))
+# Assuming you want to remove rows with any missing values
+dataset <- na.omit(dataset)
+
+# Correlation matrix
+cor_matrix <- cor(dataset[, c("avail_seat_km_per_week", "incidents_85_99", "fatal_accidents_85_99", "fatalities_85_99")])
+
+# Visualization of correlation matrix
+
+library(corrplot)
+corrplot(cor_matrix, method = "circle", type = "upper", order = "hclust")
+
+```
+
+
+
+```{r}
+
+# Min-Max Scaling
+min_max_scaling <- function(x) {
+  (x - min(x)) / (max(x) - min(x))
+}
+
+# Apply Min-Max Scaling to numeric columns
+dataset <- as.data.frame(lapply(dataset[, -1], min_max_scaling))
+
+# Add back the 'airline' column
+dataset$airline <- dataset$airline
+
+# Display the normalized data
+print(dataset)
+```
+
+
+
+```{r}
+
+# Install and load the necessary library
+
+library(caTools)
+
+set.seed(123)  # Set seed for reproducibility
+split <- sample.split(dataset$incidents_00_14, SplitRatio = 0.7)
+
+train_data <- subset(dataset, split == TRUE)
+test_data <- subset(dataset, split == FALSE)
+
+
+```
+
+
+```{r}
+# Decision Tree with limited depth
+library(rpart)
+library(randomForest)
+dt_model_fast <- rpart(incidents_00_14 ~ ., data = train_data, method = "class", maxdepth = 10)
+
+# Random Forest
+rf_model_fast <- randomForest(incidents_00_14 ~ ., data = train_data, ntree = 100)
+
+# Predictions on the test set
+dt_predictions_fast <- predict(dt_model_fast, test_data, type = "class")
+rf_predictions_fast <- predict(rf_model_fast, test_data)
+
+# Confusion Matrix
+confusion_matrix_dt_fast <- table(dt_predictions_fast, test_data$incidents_00_14)
+confusion_matrix_rf_fast <- table(rf_predictions_fast, test_data$incidents_00_14)
+
+# Compare Confusion Matrices
+print("Confusion Matrix for Faster Decision Tree:")
+print(confusion_matrix_dt_fast)
+print("Confusion Matrix for Random Forest:")
+print(confusion_matrix_rf_fast)
+
+
+```
+
+
+### Conclusion
+
+the analysis of the airline dataset provides valuable insights into the safety records of various airlines over the specified periods. Key findings include variations in incident rates, fatal accidents, and fatalities across different airlines. Additionally, the exploration of normalization techniques has facilitated a comparative assessment of airline performance, offering a standardized perspective. This analysis underscores the importance of ongoing safety measures within the aviation industry. Further research and continuous monitoring are crucial for ensuring passenger safety and improving overall airline performance."
