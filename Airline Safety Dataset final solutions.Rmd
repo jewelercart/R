@@ -1,5 +1,5 @@
 ---
-title: "Historical Analysis of Airline Safety Dataset"
+title: "Analysis of Airline Safety Dataset"
 author: "Frederick Jones"
 output:
   html_document:
@@ -23,12 +23,6 @@ The motivation behind this analysis goes beyond simple counts of accidents and i
 
 
 This approach aligns with industry best practices and allows for a more nuanced evaluation of safety measures, providing valuable insights for both the aviation industry and the broader public. Our goal is not only to identify patterns but also to contribute to the ongoing efforts to enhance aviation safety and inform decision-making in the industry.
-
-### Cases 
-
-That that dataset has 11521 cases,each providing detailed information about the trafficking of enslaved.
-
-Within this dataset, there are 126 variables, offering a comprehensive scope for analysis.
 
 
 ### Data collection 
@@ -150,6 +144,12 @@ dataset$fatalities_per_incident <-
   (dataset$fatalities_85_99 + dataset$fatalities_00_14) / 
   (dataset$incidents_85_99 + dataset$incidents_00_14)
 
+plot(dataset$incidents_85_99 + dataset$incidents_00_14, 
+     dataset$fatalities_per_incident,
+     main = "Fatalities per Incident",
+     xlab = "Total Incidents",
+     ylab = "Fatalities per Incident")
+
 ```
 
 ```{r}
@@ -162,15 +162,7 @@ print(t_test_result)
 
 
 
-| Code | Local                        |
-|--------|------------------------------|
-| 21302  | Charleston                   |
-| 37020  | St. Thomas                   |
-| 37010  | St. Croix                    |
-| 36499  | Saint-Domingue, port unspecified |
-| 32240  | Suriname                     |
-| 50299  | Bahia, port unspecified      |
-| 39001  | Caribbean (colony unspecified)|
+
 
 
 ```{r}
@@ -183,17 +175,7 @@ plot(dataset$incidents_85_99 + dataset$incidents_00_14,
 
 ```
 
-| Code   | Local                         |
-|--------|-----------------------------|
-| 31312  | Havana                      |
-| 32150  | St. Eustatius               |
-| 41203  | Veracruz                    |
-| 21102  | Hampton                     |
-| 41207  | Cartagena                   |
-| 32110  | Curaçao                      |
-| 33899  | Dominica, port unspecified  |
-| 31201  | San Juan                     |
-| 31323  | Santiago de Cuba             |
+
 
 ```{r}
 # Boxplot for selected columns
@@ -316,4 +298,29 @@ print(confusion_matrix_rf_fast)
 
 ### Conclusion
 
-the analysis of the airline dataset provides valuable insights into the safety records of various airlines over the specified periods. Key findings include variations in incident rates, fatal accidents, and fatalities across different airlines. Additionally, the exploration of normalization techniques has facilitated a comparative assessment of airline performance, offering a standardized perspective. This analysis underscores the importance of ongoing safety measures within the aviation industry. Further research and continuous monitoring are crucial for ensuring passenger safety and improving overall airline performance."
+When It comes to the total number of fatalities based on the data set I relied on the T-test to give me the answer and the results are below.
+
+    Data Information:
+        Data: dataset$fatalities_per_incident
+        Sample Mean: 19.49996
+
+    T-Test Results:
+        t-Value: 4.744
+        Degrees of Freedom (df): 54
+        p-Value: 1.575e-05 (very small)
+
+    Confidence Interval:
+        95% Confidence Interval: (11.25900, 27.74091)
+
+    Hypothesis Testing:
+        Null Hypothesis ($H_0$): The true mean of fatalities_per_incident is equal to 0.
+        Alternative Hypothesis ($H_a$): The true mean of fatalities_per_incident is not equal to 0.
+
+    Interpretation:
+        The t-test statistic (4.744) is associated with a very small p-value (1.575e-05), which is below the commonly used significance level of 0.05.
+        Therefore, you would reject the null hypothesis.
+        The 95% confidence interval (11.25900, 27.74091) indicates the range within which you are reasonably confident the true mean of fatalities_per_incident lies.
+
+In conclusion, based on this t-test, there is evidence to suggest that the true mean of fatalities_per_incident is significantly different from 0. The sample mean is 19.49996, and the 95% confidence interval provides a range for the true population mean.
+
+Which means for every fatality per incident falls between 11% to 27%. 
